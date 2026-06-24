@@ -1,4 +1,5 @@
 import { ContractData } from "../types";
+import React from 'react';
 
 export const PREDEFINED_SPECS: Record<string, { name: string; items: { key: string; value: string }[] }> = {
   "premium": {
