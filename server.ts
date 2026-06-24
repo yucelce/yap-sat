@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import contractRoutes from "./src/api/contracts.js";
 
 async function startServer() {
   const app = express();
@@ -10,9 +9,7 @@ async function startServer() {
   // Middleware
   app.use(express.json());
 
-  // API Routes
-  app.use("/api/contracts", contractRoutes);
-
+  // Sağlık kontrolü (Health check) rotası
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
