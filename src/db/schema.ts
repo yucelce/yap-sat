@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 
 // 1. Rol Yönetimi (RBAC)
 export const roles = sqliteTable("roles", {

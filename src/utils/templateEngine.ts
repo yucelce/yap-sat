@@ -1,4 +1,5 @@
 import { ContractData } from "../types";
+import React from 'react';
 
 export const PREDEFINED_SPECS: Record<string, { name: string; items: { key: string; value: string }[] }> = {
   "premium": {
@@ -55,4 +56,44 @@ export const renderTemplateString = (template: string, data: Record<string, stri
   return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
     return data[key] || match;
   });
+};
+
+export const parseTemplateToReact = (
+  template: string,
+  data: Record<string, string>,
+  onVariableClick: (key: string) => void
+) => {
+  const regex = /\{\{(\w+)\}\}/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(template)) !== null) {
+    // Değişkenden önceki statik metni ekle
+    if (match.index > lastIndex) {
+      parts.push(template.substring(lastIndex, match.index));
+    }
+    
+    // Tıklanabilir değişken (Pill/Badge tasarımı)
+    const key = match[1];
+    const value = data[key];
+    
+    parts.push(
+      <span
+        key={`${key}-${match.index}`}
+        onClick={() => onVariableClick(key)}
+        className="inline-block bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded cursor-pointer hover:bg-blue-200 transition-colors border border-blue-300 mx-0.5 font-semibold print:border-none print:bg-transparent print:p-0 print:text-black"
+        title="Düzenlemek için tıkla"
+      >
+        {value || `[${key} Eksik]`}
+      </span>
+    );
+    lastIndex = regex.lastIndex;
+  }
+  
+  // Kalan statik metni ekle
+  if (lastIndex < template.length) {
+    parts.push(template.substring(lastIndex));
+  }
+  return parts;
 };
