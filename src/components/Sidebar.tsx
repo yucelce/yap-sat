@@ -1,136 +1,134 @@
 import React, { useState } from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
-import { ChevronDown, ChevronUp, User, MapPin, Calendar, Printer, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin, Layers, Settings, FileText, Plus, Trash2 } from 'lucide-react';
 import { ContractData } from '../types';
-
-type AccordionSection = 'taraflar' | 'konu' | 'tarih' | null;
+import { PREDEFINED_SPECS } from '../utils/templateEngine';
 
 interface SidebarProps {
   formMethods: UseFormReturn<ContractData>;
 }
 
 export default function Sidebar({ formMethods }: SidebarProps) {
-  const { register, control, formState: { errors } } = formMethods;
-  const [activeSection, setActiveSection] = useState<AccordionSection>('taraflar');
+  const { register, control, setValue, watch } = formMethods;
+  const [activeSection, setActiveSection] = useState<string | null>('lokasyon');
 
-  const { fields: contractorFields, append: appendContractor, remove: removeContractor } = useFieldArray({ control, name: "contractors" });
-  const { fields: landownerFields, append: appendLandowner, remove: removeLandowner } = useFieldArray({ control, name: "landowners" });
+  const { fields: unitFields, append: appendUnit, remove: removeUnit } = useFieldArray({
+    control,
+    name: "unitShares"
+  });
 
-  const toggleSection = (section: AccordionSection) => {
-    setActiveSection(activeSection === section ? null : section);
+  const selectedPkg = watch("selectedSpecPackageId");
+
+  const handlePackageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const pkgId = e.target.value;
+    setValue("selectedSpecPackageId", pkgId);
+    if (PREDEFINED_SPECS[pkgId]) {
+      setValue("customSpecs", PREDEFINED_SPECS[pkgId].items);
+    }
   };
 
   return (
-    <div className="w-full md:w-[450px] md:min-w-[450px] bg-slate-50 border-r border-slate-300 flex flex-col shadow-md print:hidden h-full overflow-y-auto">
-      <div className="p-4 border-b border-slate-200 bg-slate-100">
-        <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wide">Sözleşme Bilgileri</h2>
+    <div className="w-full md:w-[460px] md:min-w-[460px] bg-slate-50 border-r border-slate-300 flex flex-col h-full overflow-y-auto print:hidden shadow-lg">
+      <div className="p-4 bg-slate-900 text-white">
+        <h2 className="font-bold text-sm uppercase tracking-wider">Modüler Sözleşme Yapılandırıcı</h2>
       </div>
 
-      <form className="p-4 flex-1 space-y-3">
-        {/* SEKME 1: TARAFLAR */}
-        <div className="border border-slate-300 rounded-sm bg-white overflow-hidden shadow-sm">
-          <button type="button" onClick={() => toggleSection('taraflar')} className="w-full flex items-center justify-between p-3 bg-slate-100 hover:bg-slate-200 transition-colors font-bold text-slate-800 text-sm uppercase">
-            <div className="flex items-center gap-2"><User className="h-4 w-4 text-slate-600" /><span>1. Sözleşme Tarafları</span></div>
-            {activeSection === 'taraflar' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      <div className="p-4 space-y-3 flex-1">
+        
+        {/* MODÜL 3: TAPU VE LOKASYON MODELİ */}
+        <div className="border border-slate-300 bg-white shadow-sm">
+          <button type="button" onClick={() => setActiveSection(activeSection === 'lokasyon' ? null : 'lokasyon')} className="w-full flex items-center justify-between p-3 bg-slate-100 font-bold text-xs uppercase text-slate-700">
+            <span className="flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-600"/> 3. Tapu & Gayrimenkul Hiyerarşisi</span>
+            {activeSection === 'lokasyon' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
           </button>
-          
-          {activeSection === 'taraflar' && (
-            <div className="p-4 space-y-6 border-t border-slate-300 bg-white">
-              
-              {/* MÜTEAHHİTLER (ORTAK GİRİŞİM DESTEĞİ) */}
+          {activeSection === 'lokasyon' && (
+            <div className="p-4 grid grid-cols-2 gap-3 border-t border-slate-200">
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">İl</label><input {...register("property.il")} className="w-full border p-1.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">İlçe</label><input {...register("property.ilce")} className="w-full border p-1.5 text-sm" /></div>
+              <div className="col-span-2"><label className="block text-[10px] font-bold text-slate-500 uppercase">Mahalle / Köy</label><input {...register("property.mahalleKoy")} className="w-full border p-1.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">Pafta No</label><input {...register("property.pafta")} className="w-full border p-1.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">Ada No</label><input {...register("property.ada")} className="w-full border p-1.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">Parsel No</label><input {...register("property.parsel")} className="w-full border p-1.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-bold text-slate-500 uppercase">Yüzölçümü (m²)</label><input {...register("property.yuzolcumu")} className="w-full border p-1.5 text-sm" /></div>
+              <div className="col-span-2"><label className="block text-[10px] font-bold text-slate-500 uppercase">Nitelik</label><input {...register("property.nitelik")} placeholder="Arsa, Tarla vb." className="w-full border p-1.5 text-sm" /></div>
+            </div>
+          )}
+        </div>
+
+        {/* MODÜL 4: TEKNİK ŞARTNAME & BAĞIMSIZ BÖLÜM GRİDİ */}
+        <div className="border border-slate-300 bg-white shadow-sm">
+          <button type="button" onClick={() => setActiveSection(activeSection === 'sartname' ? null : 'sartname')} className="w-full flex items-center justify-between p-3 bg-slate-100 font-bold text-xs uppercase text-slate-700">
+            <span className="flex items-center gap-2"><Settings className="w-4 h-4 text-green-600"/> 4. Şartname & EK-2 Paylaşım Tablosu</span>
+            {activeSection === 'sartname' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
+          </button>
+          {activeSection === 'sartname' && (
+            <div className="p-4 space-y-4 border-t border-slate-200">
+              {/* Şartname Paket Seçimi */}
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-bold text-slate-800">MÜTEAHHİTLER</h3>
-                  <button type="button" onClick={() => appendContractor({ id: Date.now().toString(), name: '', idNumber: '', isProxy: false })} className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold"><Plus className="w-3 h-3"/> Ekle</button>
-                </div>
-                {contractorFields.map((field, index) => (
-                  <div key={field.id} className="p-3 border border-slate-200 rounded-sm mb-3 bg-slate-50 relative">
-                    {index > 0 && <button type="button" onClick={() => removeContractor(index)} className="absolute top-2 right-2 text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4"/></button>}
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Firma / Kişi Unvanı</label>
-                    <input {...register(`contractors.${index}.name` as const)} className="w-full px-3 py-2 border border-slate-300 rounded-sm mb-2 text-sm focus:ring-1 focus:ring-slate-800" />
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Vergi No / TC</label>
-                    <input {...register(`contractors.${index}.idNumber` as const)} className="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-slate-800" />
-                  </div>
-                ))}
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Malzeme Standardı (EK-1)</label>
+                <select value={selectedPkg} onChange={handlePackageChange} className="w-full border p-2 text-sm bg-white">
+                  <option value="">Seçiniz...</option>
+                  <option value="premium">Premium Lüks Malzeme Paketi</option>
+                  <option value="standard">Standart Konfor Malzeme Paketi</option>
+                </select>
               </div>
 
-              {/* ARSA SAHİPLERİ (ÇOKLU HİSSEDAR VE VEKALET DESTEĞİ) */}
-              <div className="border-t border-slate-200 pt-4">
+              {/* Bağımsız Bölüm Grid Matrisi */}
+              <div className="border-t border-slate-200 pt-3">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-bold text-slate-800">ARSA SAHİPLERİ</h3>
-                  <button type="button" onClick={() => appendLandowner({ id: Date.now().toString(), name: '', idNumber: '', isProxy: false })} className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold"><Plus className="w-3 h-3"/> Ekle</button>
+                  <label className="text-xs font-bold text-slate-700 uppercase">EK-2: Bağımsız Bölüm Dağılımı</label>
+                  <button type="button" onClick={() => appendUnit({ id: Date.now().toString(), unitNo: "", block: "A", floor: "", type: "3+1", allocatedTo: "Müteahhit" })} className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-xs font-bold"><Plus className="w-3 h-3"/> Ekle</button>
                 </div>
-                {landownerFields.map((field, index) => (
-                  <div key={field.id} className="p-3 border border-slate-200 rounded-sm mb-3 bg-slate-50 relative">
-                    {index > 0 && <button type="button" onClick={() => removeLandowner(index)} className="absolute top-2 right-2 text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4"/></button>}
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Arsa Sahibi Adı Soyadı</label>
-                    <input {...register(`landowners.${index}.name` as const)} className="w-full px-3 py-2 border border-slate-300 rounded-sm mb-2 text-sm" />
-                    
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">T.C. Kimlik No</label>
-                    <input {...register(`landowners.${index}.idNumber` as const)} className="w-full px-3 py-2 border border-slate-300 rounded-sm mb-2 text-sm" />
-
-                    <div className="flex items-center gap-2 mt-2 mb-2">
-                      <input type="checkbox" id={`proxy-${index}`} {...register(`landowners.${index}.isProxy` as const)} className="w-4 h-4" />
-                      <label htmlFor={`proxy-${index}`} className="text-xs font-semibold text-slate-700">İşlem Vekil Aracılığıyla Yapılacak</label>
+                
+                <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                  {unitFields.map((field, index) => (
+                    <div key={field.id} className="flex gap-1.5 items-center bg-slate-50 p-2 border border-slate-200 rounded-sm relative group">
+                      <input {...register(`unitShares.${index}.block` as const)} placeholder="Blok" className="w-12 border p-1 text-xs text-center bg-white" />
+                      <input {...register(`unitShares.${index}.floor` as const)} placeholder="Kat" className="w-12 border p-1 text-xs text-center bg-white" />
+                      <input {...register(`unitShares.${index}.unitNo` as const)} placeholder="No" className="w-12 border p-1 text-xs text-center bg-white" />
+                      <select {...register(`unitShares.${index}.allocatedTo` as const)} className="flex-1 border p-1 text-xs bg-white">
+                        <option value="Müteahhit">Müteahhit</option>
+                        <option value="Arsa Sahibi">Arsa Sahibi</option>
+                      </select>
+                      <button type="button" onClick={() => removeUnit(index)} className="text-red-500 hover:text-red-700 p-1"><Trash2 className="w-3 h-3"/></button>
                     </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
-                    {formMethods.watch(`landowners.${index}.isProxy`) && (
-                      <div>
-                        <label className="block text-xs font-bold uppercase text-blue-600 mb-1">Vekilin Adı Soyadı</label>
-                        <input {...register(`landowners.${index}.proxyName` as const)} className="w-full px-3 py-2 border border-blue-300 bg-blue-50 rounded-sm text-sm" />
-                      </div>
-                    )}
+        {/* MODÜL 5: SÖZLEŞME VERSİYONLAMA & ZEYİLNAME */}
+        <div className="border border-slate-300 bg-white shadow-sm">
+          <button type="button" onClick={() => setActiveSection(activeSection === 'versiyon' ? null : 'versiyon')} className="w-full flex items-center justify-between p-3 bg-slate-100 font-bold text-xs uppercase text-slate-700">
+            <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-purple-600"/> 5. Doküman Yönetimi & Zeyilname</span>
+            {activeSection === 'versiyon' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
+          </button>
+          {activeSection === 'versiyon' && (
+            <div className="p-4 space-y-3 border-t border-slate-200 bg-purple-50/40">
+              <div className="flex items-center gap-4 bg-white p-3 border border-purple-200">
+                <div>
+                  <label className="block text-[10px] font-bold text-purple-700 uppercase">Aktif Sürüm</label>
+                  <span className="text-lg font-black text-purple-900">V{formMethods.watch("versionInfo.versionNumber") || 1}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" id="addendumCheck" {...register("versionInfo.isAddendum")} className="w-4 h-4" />
+                    <label htmlFor="addendumCheck" className="text-xs font-bold text-slate-700">Bu bir Zeyilnamedir (Ek Sözleşme)</label>
                   </div>
-                ))}
+                </div>
               </div>
+              {formMethods.watch("versionInfo.isAddendum") && (
+                <div>
+                  <label className="block text-[10px] font-bold text-purple-700 uppercase mb-1">Zeyil Nedeni / Değişiklik Maddesi</label>
+                  <textarea {...register("versionInfo.changeReason")} rows={2} placeholder="Örn: 15.02.2026 tarihli ana sözleşmeye ek olarak mutfak mermer kalemi güncellenmiştir." className="w-full border p-2 text-xs bg-white resize-none" />
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* SEKME 2: KONU VE PAYLAŞIM */}
-        <div className="border border-slate-300 rounded-sm bg-white overflow-hidden shadow-sm">
-          <button type="button" onClick={() => toggleSection('konu')} className="w-full flex items-center justify-between p-3 bg-slate-100 hover:bg-slate-200 transition-colors font-bold text-slate-800 text-sm uppercase">
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-600" /><span>2. Taşınmaz & Paylaşım</span></div>
-            {activeSection === 'konu' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
-          
-          {activeSection === 'konu' && (
-            <div className="p-4 space-y-4 border-t border-slate-300 bg-white">
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Arsa Adresi (Ada/Parsel)</label>
-                <textarea {...register('adres')} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-sm focus:ring-1 text-sm resize-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Paylaşım Oranı</label>
-                <input {...register('oran')} className="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* SEKME 3: TARİH */}
-        <div className="border border-slate-300 rounded-sm bg-white overflow-hidden shadow-sm">
-          <button type="button" onClick={() => toggleSection('tarih')} className="w-full flex items-center justify-between p-3 bg-slate-100 hover:bg-slate-200 transition-colors font-bold text-slate-800 text-sm uppercase">
-            <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-slate-600" /><span>3. Sözleşme Tarihi</span></div>
-            {activeSection === 'tarih' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
-          
-          {activeSection === 'tarih' && (
-            <div className="p-4 space-y-4 border-t border-slate-300 bg-white">
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">İmza Tarihi</label>
-                <input {...register('tarih')} className="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm" />
-              </div>
-            </div>
-          )}
-        </div>
-      </form>
-
-      <div className="p-4 border-t border-slate-300 bg-slate-200">
-        <button onClick={() => window.print()} className="w-full bg-slate-800 text-white py-2.5 rounded-sm hover:bg-slate-900 transition-colors shadow-sm font-bold uppercase text-sm flex items-center justify-center gap-2 cursor-pointer">
-          <Printer className="h-4 w-4" />
-          Yazıcıdan Çıktı Al
-        </button>
       </div>
     </div>
   );
