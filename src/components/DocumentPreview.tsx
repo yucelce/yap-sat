@@ -42,7 +42,7 @@ export default function DocumentPreview({ formData }: DocumentPreviewProps) {
           </div>
         </div>
 
-        {/* İmza Blokları (Değişmedi, aynı kalacak) */}
+        {/* İmza Blokları (Ddeğişmedi, aynı kalacak) */}
         {/* ... */}
       </div>
     </div>
