@@ -12,9 +12,36 @@ export default function App() {
     defaultValues: {
       contractors: [{ id: '1', name: 'Ahmet Yılmaz İnşaat Ltd. Şti.', idNumber: '1234567890', isProxy: false }],
       landowners: [{ id: '2', name: 'Mehmet Kaya', idNumber: '11111111111', isProxy: false }],
-      adres: 'İstanbul İli, Kadıköy İlçesi, Erenköy Mahallesi, 1024 Ada, 15 Parsel',
+      
+      // 'adres' yerine şemada istenen 'property' objesi eklendi
+      property: {
+        il: 'İstanbul',
+        ilce: 'Kadıköy',
+        mahalleKoy: 'Erenköy',
+        pafta: '12',
+        ada: '1024',
+        parsel: '15',
+        yuzolcumu: '1500',
+        nitelik: 'Arsa'
+      },
+      
+      // Şemada min(1) zorunluluğu olan unitShares dizisi eklendi
+      unitShares: [
+        { id: '1', unitNo: '1', block: 'A', floor: '1', type: '3+1', allocatedTo: 'Müteahhit' }
+      ],
+      
+      // Zod şemasının talep ettiği diğer alanlar eklendi
+      selectedSpecPackageId: '',
+      customSpecs: [],
+      
       oran: '%50 Müteahhit - %50 Arsa Sahibi',
-      tarih: new Date().toLocaleDateString('tr-TR')
+      tarih: new Date().toLocaleDateString('tr-TR'),
+      
+      versionInfo: {
+        versionNumber: 1,
+        isAddendum: false,
+        changeReason: ''
+      }
     },
     mode: "onChange"
   });
