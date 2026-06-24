@@ -78,14 +78,14 @@ export const parseTemplateToReact = (
     const value = data[key];
     
     parts.push(
-      <span
-        key={`${key}-${match.index}`}
-        onClick={() => onVariableClick(key)}
-        className="inline-block bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded cursor-pointer hover:bg-blue-200 transition-colors border border-blue-300 mx-0.5 font-semibold print:border-none print:bg-transparent print:p-0 print:text-black"
-        title="Düzenlemek için tıkla"
-      >
-        {value || `[${key} Eksik]`}
-      </span>
+     <span
+  key={`${key}-${match.index}`}
+  onClick={() => onVariableClick(key)}
+  className="inline-block bg-amber-100/50 text-amber-900 border-b border-dashed border-amber-400 cursor-pointer hover:bg-amber-100 hover:border-amber-600 transition-colors px-1 font-medium print:border-none print:bg-transparent print:p-0 print:text-black"
+  title="Düzenlemek için forma git"
+>
+  {value || `[${key.toUpperCase()}]`}
+</span>
     );
     lastIndex = regex.lastIndex;
   }
