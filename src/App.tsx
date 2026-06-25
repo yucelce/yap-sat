@@ -26,6 +26,7 @@ export default function App() {
       },
 
       selectedClauses: ["taraflar", "gayrimenkul", "paylasim", "gecikme"],
+      customArticles: {},
 
       // Şemada min(1) zorunluluğu olan unitShares dizisi eklendi
       unitShares: [

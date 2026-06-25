@@ -38,6 +38,8 @@ export const TechSpecItemSchema = z.object({
 });
 
 
+// src/types/index.ts içinde bulun ve güncelleyin:
+
 export const ContractDataSchema = z.object({
   contractors: z.array(PersonSchema).min(1),
   landowners: z.array(PersonSchema).min(1),
@@ -47,10 +49,11 @@ export const ContractDataSchema = z.object({
   customSpecs: z.array(TechSpecItemSchema),
   oran: z.string().min(1),
   tarih: z.string().min(1),
+  selectedClauses: z.array(z.string()).default([]),
   
-  // YENİ EKLENEN ALAN: Seçili madde ID'leri
-  selectedClauses: z.array(z.string()).default([]), 
-  
+  // YENİ EKLENEN ALAN: Özelleştirilmiş madde metinlerini tutar
+  customArticles: z.record(z.string(), z.string()).default({}),
+
   versionInfo: z.object({
     versionNumber: z.number().default(1),
     isAddendum: z.boolean().default(false),

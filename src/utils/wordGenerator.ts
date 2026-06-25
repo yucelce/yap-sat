@@ -37,6 +37,8 @@ export const generateWordDocument = async (data: ContractData) => {
   const dataDict = formatDataForTemplate(data);
   const selectedClauses = data.selectedClauses || [];
 
+  // src/utils/wordGenerator.ts dosyasında ilgili döngüyü bulun ve şu şekilde güncelleyin:
+
   CONTRACT_TEMPLATES.YAP_SAT.articles.forEach(article => {
     if (selectedClauses.includes(article.id)) {
       // Başlığı ekle
@@ -47,8 +49,11 @@ export const generateWordDocument = async (data: ContractData) => {
         })
       );
       
+      // YENİ: Eğer kullanıcının yazdığı custom bir metin varsa onu al, yoksa orijinal içeriği al
+      const templateContent = data.customArticles?.[article.id] || article.content;
+      
       // Şablon değişkenlerini çöz ve içeriği ekle
-      const resolvedContent = renderTemplateString(article.content, dataDict);
+      const resolvedContent = renderTemplateString(templateContent, dataDict);
       docChildren.push(
         new Paragraph({
           children: [new TextRun({ text: resolvedContent })],
