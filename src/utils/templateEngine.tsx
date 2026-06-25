@@ -28,13 +28,36 @@ export const generateLegalAddressText = (p: ContractData["property"]) => {
 
 // === AŞAĞIDAKİ KISIMLAR EKLENDİ ===
 
+// src/utils/templateEngine.tsx dosyasında CONTRACT_TEMPLATES objesini şu şekilde değiştirin:
+
 export const CONTRACT_TEMPLATES = {
   YAP_SAT: {
     title: "GAYRİMENKUL SATIŞ VAADİ VE ARSA PAYI KARŞILIĞI İNŞAAT SÖZLEŞMESİ",
     articles: [
-      { title: "1. TARAFLAR", content: "{{taraflar}}" },
-      { title: "2. SÖZLEŞME KONUSU VE GAYRİMENKUL BİLGİLERİ", content: "{{gayrimenkulBilgisi}}" },
-      { title: "3. PAYLAŞIM ORANI", content: "Taraflar arasındaki paylaşım oranı {{oran}} olarak belirlenmiştir." }
+      { 
+        id: "taraflar", 
+        title: "1. TARAFLAR", 
+        content: "{{taraflar}}", 
+        isMandatory: true 
+      },
+      { 
+        id: "gayrimenkul", 
+        title: "2. SÖZLEŞME KONUSU VE GAYRİMENKUL BİLGİLERİ", 
+        content: "{{gayrimenkulBilgisi}}", 
+        isMandatory: true 
+      },
+      { 
+        id: "paylasim", 
+        title: "3. PAYLAŞIM ORANI", 
+        content: "Taraflar arasındaki paylaşım oranı {{oran}} olarak belirlenmiştir.",
+        isMandatory: true
+      },
+      { 
+        id: "gecikme", 
+        title: "4. GECİKME CEZASI (OPSİYONEL)", 
+        content: "İnşaatın süresinde teslim edilmemesi durumunda müteahhit, arsa sahibine gecikilen her ay için geçerli asgari ücret tutarında cezai şart ödemeyi gayrikabili rücu kabul, beyan ve taahhüt eder.",
+        isMandatory: false 
+      }
     ]
   }
 };

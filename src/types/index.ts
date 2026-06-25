@@ -37,17 +37,20 @@ export const TechSpecItemSchema = z.object({
   value: z.string(), // Örn: 'Vaillant Ecotech 24kw'
 });
 
-// Ana Sözleşme State Şeması
+
 export const ContractDataSchema = z.object({
   contractors: z.array(PersonSchema).min(1),
   landowners: z.array(PersonSchema).min(1),
   property: PropertyHierarchySchema,
   unitShares: z.array(IndependentUnitSchema).min(1, "En az bir bağımsız bölüm girilmelidir"),
   selectedSpecPackageId: z.string(),
-  customSpecs: z.array(TechSpecItemSchema), // Dinamik manipülasyon için
+  customSpecs: z.array(TechSpecItemSchema),
   oran: z.string().min(1),
   tarih: z.string().min(1),
-  // Versiyonlama Bilgisi
+  
+  // YENİ EKLENEN ALAN: Seçili madde ID'leri
+  selectedClauses: z.array(z.string()).default([]), 
+  
   versionInfo: z.object({
     versionNumber: z.number().default(1),
     isAddendum: z.boolean().default(false),

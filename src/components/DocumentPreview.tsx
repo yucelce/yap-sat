@@ -1,21 +1,34 @@
-// src/components/DocumentPreview.tsx
+// src/components/DocumentPreview.tsx dosyasını tamamen şu kodla değiştirin:
 import React from 'react';
+import { UseFormSetValue } from 'react-hook-form';
 import { ContractData } from '../types';
 import { CONTRACT_TEMPLATES, formatDataForTemplate } from '../utils/templateEngine';
 import ClauseBlock from './ClauseBlock';
 
 interface DocumentPreviewProps {
   formData: ContractData;
+  setValue: UseFormSetValue<ContractData>;
 }
 
-export default function DocumentPreview({ formData }: DocumentPreviewProps) {
+export default function DocumentPreview({ formData, setValue }: DocumentPreviewProps) {
   const template = CONTRACT_TEMPLATES.YAP_SAT;
   const isDataValid = formData && formData.contractors && formData.landowners;
   const dataDict = isDataValid ? formatDataForTemplate(formData) : {};
 
-  // Bir değişkene tıklandığında ne olacağı (Şimdilik alert veriyoruz, sonra Sidebar'ı tetikleyeceğiz)
   const handleVariableClick = (key: string) => {
-    alert(`"${key}" değişkenine tıkladınız! (Yakında soldaki formda ilgili alana odaklanacak)`);
+    alert(`"${key}" değişkenine tıkladınız!`);
+  };
+
+  const handleRemoveClause = (clauseId: string, isMandatory: boolean) => {
+    if (isMandatory) {
+      const isConfirmed = window.confirm(
+        "DİKKAT: Bu madde yasal olarak sözleşmenin temelini oluşturmaktadır. Çıkarılması belgenin hukuki geçerliliğini tehlikeye atabilir. Yine de çıkarmak istiyor musunuz?"
+      );
+      if (!isConfirmed) return;
+    }
+    
+    const currentClauses = formData.selectedClauses || [];
+    setValue("selectedClauses", currentClauses.filter(id => id !== clauseId), { shouldDirty: true });
   };
 
   return (
@@ -30,20 +43,20 @@ export default function DocumentPreview({ formData }: DocumentPreviewProps) {
           </div>
 
           <div className="space-y-4 text-black">
-            {isDataValid && template.articles.map((article, idx) => (
-              <ClauseBlock 
-                key={idx}
-                title={article.title}
-                templateContent={article.content}
-                dataDict={dataDict}
-                onVariableClick={handleVariableClick}
-              />
+            {isDataValid && template.articles
+              .filter(article => (formData.selectedClauses || []).includes(article.id))
+              .map((article) => (
+                <ClauseBlock 
+                  key={article.id}
+                  title={article.title}
+                  templateContent={article.content}
+                  dataDict={dataDict}
+                  onVariableClick={handleVariableClick}
+                  onRemove={() => handleRemoveClause(article.id, article.isMandatory || false)}
+                />
             ))}
           </div>
         </div>
-
-        {/* İmza Blokları (Ddeğişmedi, aynı kalacak) */}
-        {/* ... */}
       </div>
     </div>
   );

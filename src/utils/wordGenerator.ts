@@ -1,8 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from "docx";
 import { saveAs } from "file-saver";
 import { ContractData } from "../types";
-import { generateLegalAddressText } from "./templateEngine";
-
+import { CONTRACT_TEMPLATES, formatDataForTemplate, renderTemplateString, generateLegalAddressText } from "./templateEngine";
 const cellBorder = { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" };
 
 export const generateWordDocument = async (data: ContractData) => {
@@ -27,7 +26,7 @@ export const generateWordDocument = async (data: ContractData) => {
       new Paragraph({
         children: [
           new TextRun({ text: "ZEYİL GEREKÇESİ VE DEĞİŞİKLİK: ", bold: true, size: 22 }),
-          new TextRun({ text: data.versionInfo.changeReason, size: 22, italic: true })
+          new TextRun({ text: data.versionInfo.changeReason, size: 22, italics: true })
         ],
         spacing: { after: 300 }
       })
@@ -35,22 +34,30 @@ export const generateWordDocument = async (data: ContractData) => {
   }
 
   // 1. TARAFLAR VE 2. KONU Maddelerini ekleyelim
-  docChildren.push(
-    new Paragraph({ children: [new TextRun({ text: "1. TARAFLAR", bold: true, size: 24 })], spacing: { after: 150 } }),
-    new Paragraph({
-      children: [
-        new TextRun({ text: `İşbu sözleşme, müteahhitler [${data.contractors.map(c => c.name).join(", ")}] ile arsa sahipleri [${data.landowners.map(l => l.name).join(", ")}] arasında imza edilmiştir.` })
-      ],
-      spacing: { after: 300 },
-      alignment: AlignmentType.JUSTIFIED
-    }),
-    new Paragraph({ children: [new TextRun({ text: "2. SÖZLEŞME KONUSU VE GAYRİMENKUL BİLGİLERİ", bold: true, size: 24 })], spacing: { after: 150 } }),
-    new Paragraph({
-      children: [new TextRun({ text: generateLegalAddressText(data.property) })],
-      spacing: { after: 400 },
-      alignment: AlignmentType.JUSTIFIED
-    })
-  );
+  const dataDict = formatDataForTemplate(data);
+  const selectedClauses = data.selectedClauses || [];
+
+  CONTRACT_TEMPLATES.YAP_SAT.articles.forEach(article => {
+    if (selectedClauses.includes(article.id)) {
+      // Başlığı ekle
+      docChildren.push(
+        new Paragraph({ 
+          children: [new TextRun({ text: article.title, bold: true, size: 24 })], 
+          spacing: { before: 200, after: 150 } 
+        })
+      );
+      
+      // Şablon değişkenlerini çöz ve içeriği ekle
+      const resolvedContent = renderTemplateString(article.content, dataDict);
+      docChildren.push(
+        new Paragraph({
+          children: [new TextRun({ text: resolvedContent })],
+          spacing: { after: 300 },
+          alignment: AlignmentType.JUSTIFIED
+        })
+      );
+    }
+  });
 
   // --- EK-1: TEKNİK ŞARTNAME TABLOSU ---
   docChildren.push(
